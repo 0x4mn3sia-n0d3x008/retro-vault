@@ -38,4 +38,4 @@ npm start
 # Brabim Retro Vault
 
 A retro-style password manager made with React Native ✨
->>>>>>> 50b78bc4 (🎉 Initial commit of retro-vault)
+ (🎉 Initial commit of retro-vault)
