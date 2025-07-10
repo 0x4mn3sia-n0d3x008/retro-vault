@@ -1,5 +1,5 @@
 
-=======
+
 # 🕶️ retro-vault
 
 > Store secrets like it’s 1999 — offline, encrypted, and aesthetic AF.
