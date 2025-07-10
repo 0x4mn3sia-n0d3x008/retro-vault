@@ -1,76 +1,16 @@
-// App.js
-import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function App() {
-  const [screen, setScreen] = useState(null);
-  const [userExists, setUserExists] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+export default function VaultScreen() {
   const [label, setLabel] = useState('');
-  const [vaultPassword, setVaultPassword] = useState('');
+  const [password, setPassword] = useState('');
   const [passwords, setPasswords] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const savedUser = await AsyncStorage.getItem('user');
-        if (savedUser) {
-          setUserExists(true);
-          setScreen('login');
-        } else {
-          setUserExists(false);
-          setScreen('register');
-        }
-      } catch (error) {
-        console.log('Error checking user:', error);
-      }
-    };
-    checkUser();
-  }, []);
-
-  const handleRegister = async () => {
-    if (!username.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both username and password');
-      return;
-    }
-    try {
-      await AsyncStorage.setItem('user', JSON.stringify({ username, password }));
-      setUserExists(true);
-      setScreen('vault');
-    } catch (error) {
-      console.log('Registration failed:', error);
-    }
-  };
-
-  const handleLogin = async () => {
-    try {
-      const savedUser = await AsyncStorage.getItem('user');
-      if (savedUser) {
-        const { username: savedUsername, password: savedPassword } = JSON.parse(savedUser);
-        if (username === savedUsername && password === savedPassword) {
-          setScreen('vault');
-        } else {
-          Alert.alert('Error', 'Invalid credentials');
-        }
-      }
-    } catch (e) {
-      console.log('Login failed:', e);
-    }
-  };
-
+  // Load passwords when component mounts
   useEffect(() => {
     const loadPasswords = async () => {
       try {
@@ -80,9 +20,10 @@ export default function App() {
         console.log('Failed to load passwords:', e);
       }
     };
-    if (screen === 'vault') loadPasswords();
-  }, [screen]);
+    loadPasswords();
+  }, []);
 
+  // Save passwords whenever they change
   useEffect(() => {
     const savePasswords = async () => {
       try {
@@ -91,103 +32,59 @@ export default function App() {
         console.log('Failed to save passwords:', e);
       }
     };
-    if (screen === 'vault') savePasswords();
+    savePasswords();
   }, [passwords]);
 
   const addOrUpdatePassword = () => {
-    if (!label.trim() || !vaultPassword.trim()) {
+    if (!label.trim() || !password.trim()) {
       Alert.alert('Oops!', 'Please fill both Label and Password');
       return;
     }
+
     if (editIndex !== null) {
       const updated = [...passwords];
-      updated[editIndex] = { label, password: vaultPassword };
+      updated[editIndex] = { label, password };
       setPasswords(updated);
       setEditIndex(null);
     } else {
-      setPasswords([...passwords, { label, password: vaultPassword }]);
+      setPasswords([...passwords, { label, password }]);
     }
     setLabel('');
-    setVaultPassword('');
+    setPassword('');
   };
 
   const editPassword = (index) => {
     setLabel(passwords[index].label);
-    setVaultPassword(passwords[index].password);
+    setPassword(passwords[index].password);
     setEditIndex(index);
   };
 
   const deletePassword = (index) => {
-    Alert.alert('Delete', 'Are you sure you want to delete this password?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          const filtered = passwords.filter((_, i) => i !== index);
-          setPasswords(filtered);
-          if (editIndex === index) {
-            setEditIndex(null);
-            setLabel('');
-            setVaultPassword('');
-          }
+    Alert.alert(
+      'Delete',
+      'Are you sure you want to delete this password?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete', style: 'destructive', onPress: () => {
+            const filtered = passwords.filter((_, i) => i !== index);
+            setPasswords(filtered);
+            if (editIndex === index) {
+              setEditIndex(null);
+              setLabel('');
+              setPassword('');
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
-  if (!screen) return null;
-
-  if (screen === 'register') {
-    return (
-      <View style={styles.authContainer}>
-        <Text style={styles.header}>Register</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Register</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  if (screen === 'login') {
-    return (
-      <View style={styles.authContainer}>
-        <Text style={styles.header}>Login</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Retro Vault</Text>
         <Text style={styles.icon}>🥷</Text>
@@ -209,8 +106,8 @@ export default function App() {
         <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.input}
-          value={vaultPassword}
-          onChangeText={setVaultPassword}
+          value={password}
+          onChangeText={setPassword}
           placeholder="Enter password"
           placeholderTextColor="#003300"
           secureTextEntry
@@ -246,12 +143,6 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  authContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#000',
-  },
   container: {
     flex: 1,
     backgroundColor: '#000000',
@@ -267,11 +158,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: '#00FF00',
     fontWeight: 'bold',
-    fontFamily: 'Courier',
+    fontFamily: '"Lucida Console", "Courier New", monospace',
     textShadowColor: '#00FF00',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 15,
-    textAlign: 'center',
   },
   icon: {
     fontSize: 32,
@@ -284,7 +174,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     color: '#00FF00',
-    fontFamily: 'Courier',
+    fontFamily: '"Lucida Console", "Courier New", monospace',
     marginBottom: 10,
     marginTop: 20,
   },
@@ -295,22 +185,12 @@ const styles = StyleSheet.create({
     color: '#00FF00',
     padding: 12,
     borderRadius: 6,
-    fontFamily: 'Courier',
+    fontFamily: '"Lucida Console", "Courier New", monospace',
     fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#003300',
-    paddingVertical: 14,
-    paddingHorizontal: 26,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#00FF00',
-    fontWeight: 'bold',
-    fontSize: 16,
-    fontFamily: 'Courier',
+    shadowColor: '#00FF00',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
   },
   lockButton: {
     backgroundColor: '#003300',
@@ -318,6 +198,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 26,
     borderRadius: 50,
     marginTop: 10,
+    shadowColor: '#00FF00',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 15,
+    alignSelf: 'flex-start',
   },
   lockIcon: {
     color: '#00FF00',
@@ -330,17 +215,21 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 12,
     borderRadius: 8,
+    shadowColor: '#00FF00',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
   },
   passwordLabel: {
     color: '#00FF00',
-    fontFamily: 'Courier',
+    fontFamily: '"Lucida Console", "Courier New", monospace',
     fontSize: 20,
     marginBottom: 6,
     fontWeight: '600',
   },
   passwordText: {
     color: '#00FF00',
-    fontFamily: 'Courier',
+    fontFamily: '"Lucida Console", "Courier New", monospace',
     fontSize: 18,
     marginBottom: 12,
   },
@@ -359,5 +248,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 6,
+  },
+  buttonText: {
+    color: '#00FF00',
+    fontWeight: 'bold',
+    fontFamily: '"Lucida Console", "Courier New", monospace',
+    fontSize: 16,
   },
 });
