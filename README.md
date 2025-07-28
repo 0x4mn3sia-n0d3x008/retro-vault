@@ -20,7 +20,7 @@
 ### 🧠 Author
 
 Built with ☕, nostalgia, and terminal vibes by  
-**Surya Pratap Gautam** aka [@Brabim](https://github.com/brabim666)
+**0x4mn3sia** aka [@Brabim](https://github.com/0x4mn3sia-n0d3x008)
 
 ---
 
@@ -31,7 +31,7 @@ Built with ☕, nostalgia, and terminal vibes by
 ### 🚀 Getting Started
 
 ```bash
-git clone https://github.com/brabim666/retro-vault.git
+git clone https://github.com/0x4mn3sia-n0d3x008/retro-vault.git
 cd retro-vault
 npm install
 npm start
