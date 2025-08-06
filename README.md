@@ -4,7 +4,7 @@
 
 > Store secrets like it’s 1999 — offline, encrypted, and aesthetic AF.
 
-**retro-vault** is a retro-themed local password manager built with React Native. Inspired by the 90s hacking era, it lets you safely store your passwords with no cloud, no trace — just pure local storage and old-school vibes 🔐
+**retro-vault** is a retro-themed local password manager built with React Native. Inspired by the 90s era, it lets you safely store your passwords with no cloud, no trace — just pure local storage and old-school vibes 🔐
 
 ---
 
